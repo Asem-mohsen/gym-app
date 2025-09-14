@@ -10,4 +10,5 @@ export { ClassListScreen } from './classes/ClassListScreen';
 export { ClassDetailsScreen } from './classes/ClassDetailsScreen';
 export { ServiceListScreen } from './services/ServiceListScreen';
 export { ServiceDetailsScreen } from './services/ServiceDetailsScreen';
+export { ContactUsScreen } from './contact/ContactUsScreen';
 export { ProfileScreen } from './profile/ProfileScreen';

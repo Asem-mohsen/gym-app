@@ -6,6 +6,7 @@ export { Loader } from './Loader';
 export { ErrorMessage } from './ErrorMessage';
 export { Modal } from './Modal';
 export { HeroBanner } from './HeroBanner';
+export { PageBanner } from './PageBanner';
 export { Slider } from './Slider';
 export { MotivationBanner } from './MotivationBanner';
 

@@ -79,8 +79,54 @@ export abstract class BaseService {
    */
   protected async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
-      const response = await this.api.get<ApiResponse<T>>(url, config);
-      return response.data;
+      const response = await this.api.get<any>(url, config);
+      
+      // Check if response is HTML (error case)
+      if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
+        throw new Error('API returned HTML instead of JSON. Check the endpoint URL.');
+      }
+      
+      // Handle different API response structures
+      let result;
+      
+      if (response.data && typeof response.data === 'object') {
+        // Check if it's the expected structure: { status: true, message: "...", data: [...] }
+        if (response.data.hasOwnProperty('data') && response.data.hasOwnProperty('status')) {
+          result = {
+            data: response.data.data,
+            message: response.data.message,
+            success: response.data.status,
+            status: response.data.status ? 'success' : 'error'
+          };
+        } 
+        // Check if it's a direct array response
+        else if (Array.isArray(response.data)) {
+          result = {
+            data: response.data,
+            message: 'Success',
+            success: true,
+            status: 'success'
+          };
+        }
+        // Check if it's a direct object response
+        else {
+          result = {
+            data: response.data,
+            message: 'Success',
+            success: true,
+            status: 'success'
+          };
+        }
+      } else {
+        result = {
+          data: response.data,
+          message: 'Success',
+          success: true,
+          status: 'success'
+        };
+      }
+      
+      return result;
     } catch (error) {
       throw error;
     }
@@ -91,8 +137,14 @@ export abstract class BaseService {
    */
   protected async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
-      const response = await this.api.post<ApiResponse<T>>(url, data, config);
-      return response.data;
+      const response = await this.api.post<any>(url, data, config);
+      // Handle API response structure: { status: true, message: "...", data: [...] }
+      return {
+        data: response.data.data,
+        message: response.data.message,
+        success: response.data.status,
+        status: response.data.status ? 'success' : 'error'
+      };
     } catch (error) {
       throw error;
     }
@@ -216,13 +268,13 @@ export abstract class BaseService {
       // Request was made but no response received
       return {
         message: 'Network error. Please check your connection.',
-        status: 0,
+        status: false,
       };
     } else {
       // Something else happened
       return {
         message: error.message || 'An unexpected error occurred',
-        status: 0,
+        status: false,
       };
     }
   }

@@ -25,12 +25,7 @@ export interface Gym {
   phone?: string;
   contact_email?: string;
   logo?: string;
-  created_at: string;
-  updated_at: string;
-  owner_id?: number;
-  size?: number;
   site_url?: string;
-  is_website_visible?: number;
   site_map?: string;
   facebook_url?: string;
   x_url?: string;
@@ -76,8 +71,7 @@ export interface Membership {
   price: number;
   period: string;
   duration_days: number;
-  features: string[];
-  is_active: boolean;
+  features: any[]; // Changed to any[] to handle different feature formats
   created_at: string;
   updated_at: string;
 }
@@ -87,14 +81,16 @@ export interface Class {
   id: number;
   name: string;
   description: string;
-  instructor: string;
   start_time: string;
   end_time: string;
   max_participants: number;
   current_participants: number;
-  price: number;
-  is_active: boolean;
+  status: string;
   image: string;
+  trainers?: any[]; 
+  pricings?: any[];
+  schedules?: any[]; 
+  branches?: any[];
 }
 
 // Service Types
@@ -102,32 +98,58 @@ export interface Service {
   id: number;
   name: string;
   description: string;
-  price: number;
-  duration_minutes: number;
-  category: string;
-  is_active: boolean;
+  price: number | null;
+  duration: number;
+  requires_payment: boolean;
+  booking_type: 'unbookable' | 'paid_booking' | 'free_booking';
+  is_available: boolean;
+  sort_order: number;
   image: string;
+  branches: any[];
+  offers: any[];
+}
+
+export interface ServiceApiResponse {
+  status: boolean;
+  message: string;
+  data: {
+    services: Service[];
+    booking_types: string[];
+  };
+}
+
+// Contact Types
+export interface ContactData {
+  id: number;
+  gym_name: string;
+  slug: string;
+  address: string;
+  description: string;
+  contact_email: string;
+  phone: string;
+  site_url: string | null;
+  is_website_visible: number;
+  logo: string;
+  site_map: string;
+  facebook_url: string;
+  x_url: string;
+  instagram_url: string;
+}
+
+export interface ContactApiResponse {
+  status: boolean;
+  message: string;
+  data: ContactData;
+}
+
+export interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
 }
 
 // Navigation Types
-export type RootStackParamList = {
-  GymSelection: undefined;
-  Auth: undefined;
-  Main: undefined;
-};
-
-export type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-};
-
-export type MainTabParamList = {
-  Home: undefined;
-  Memberships: undefined;
-  Classes: undefined;
-  Services: undefined;
-  Profile: undefined;
-};
 
 export type MembershipStackParamList = {
   MembershipList: undefined;
@@ -144,9 +166,13 @@ export type ServiceStackParamList = {
   ServiceDetails: { id: number };
 };
 
+export type ContactStackParamList = {
+  ContactUs: undefined;
+};
+
 // Error Types
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
-  status: number;
+  status: boolean;
 }

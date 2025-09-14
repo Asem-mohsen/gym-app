@@ -1,6 +1,6 @@
 import { BaseService } from './BaseService';
 import { API_ENDPOINTS, getGymApiEndpoints } from '../constants/api';
-import { Service, ApiResponse, PaginatedResponse } from '../types';
+import { Service, ApiResponse, PaginatedResponse, ServiceApiResponse } from '../types';
 
 /**
  * Service Service (for gym services like personal training, massage, etc.)
@@ -21,33 +21,25 @@ export class ServiceService extends BaseService {
   }
 
   /**
-   * Get all services with pagination
-   */
-  public async getServices(page: number = 1, perPage: number = 10): Promise<PaginatedResponse<Service>> {
-    try {
-      const response = await this.getPaginated<Service>(
-        API_ENDPOINTS.SERVICES.LIST,
-        page,
-        perPage
-      );
-      return response as PaginatedResponse<Service>;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
    * Get all services without pagination
    */
-  public async getAllServices(gymSlug?: string): Promise<Service[]> {
+  public async getAllServices(gymSlug : string): Promise<ServiceApiResponse> {
     try {
-      const endpoint = gymSlug 
-        ? getGymApiEndpoints(gymSlug).SERVICES.LIST 
-        : API_ENDPOINTS.SERVICES.LIST;
+      const endpoint = getGymApiEndpoints(gymSlug).SERVICES.LIST;
+      console.log('ServiceService: Making request to endpoint:', endpoint);
       
-      const response = await this.get<Service[]>(endpoint);
-      return response.data;
+      const response = await this.get<{services: Service[], booking_types: string[]}>(endpoint);
+      console.log('ServiceService: Raw response from BaseService:', JSON.stringify(response, null, 2));
+      
+      const result: ServiceApiResponse = {
+        status: true,
+        message: response.message || 'Services retrieved successfully',
+        data: response.data
+      };
+      console.log('ServiceService: Processed result:', JSON.stringify(result, null, 2));
+      return result;
     } catch (error) {
+      console.error('ServiceService: Error in getAllServices:', error);
       throw error;
     }
   }
@@ -55,70 +47,13 @@ export class ServiceService extends BaseService {
   /**
    * Get service by ID
    */
-  public async getServiceById(id: number): Promise<Service> {
+  public async getServiceById(id: number, gymSlug: string): Promise<Service> {
     try {
-      const response = await this.get<Service>(API_ENDPOINTS.SERVICES.DETAILS(id));
+      const response = await this.get<Service>(getGymApiEndpoints(gymSlug).SERVICES.DETAILS(id));
       return response.data;
     } catch (error) {
       throw error;
     }
   }
 
-  /**
-   * Get active services only
-   */
-  public async getActiveServices(gymSlug?: string): Promise<Service[]> {
-    try {
-      const endpoint = gymSlug 
-        ? getGymApiEndpoints(gymSlug).SERVICES.LIST 
-        : API_ENDPOINTS.SERVICES.LIST;
-      
-      const response = await this.get<Service[]>(endpoint, {
-        params: { is_active: true }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get services by category
-   */
-  public async getServicesByCategory(category: string): Promise<Service[]> {
-    try {
-      const response = await this.get<Service[]>(API_ENDPOINTS.SERVICES.LIST, {
-        params: { category }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Search services by name or description
-   */
-  public async searchServices(query: string): Promise<Service[]> {
-    try {
-      const response = await this.get<Service[]>(API_ENDPOINTS.SERVICES.LIST, {
-        params: { search: query }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get all available categories
-   */
-  public async getServiceCategories(): Promise<string[]> {
-    try {
-      const response = await this.get<string[]>('/services/categories');
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
 }

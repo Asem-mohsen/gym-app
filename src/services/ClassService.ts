@@ -1,6 +1,6 @@
 import { BaseService } from './BaseService';
-import { API_ENDPOINTS, getGymApiEndpoints } from '../constants/api';
-import { Class, ApiResponse, PaginatedResponse } from '../types';
+import { getGymApiEndpoints } from '../constants/api';
+import { Class } from '../types';
 
 /**
  * Class Service
@@ -21,105 +21,33 @@ export class ClassService extends BaseService {
   }
 
   /**
-   * Get all classes with pagination
-   */
-  public async getClasses(page: number = 1, perPage: number = 10): Promise<PaginatedResponse<Class>> {
-    try {
-      const response = await this.getPaginated<Class>(
-        API_ENDPOINTS.CLASSES.LIST,
-        page,
-        perPage
-      );
-      return response as PaginatedResponse<Class>;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
    * Get all classes without pagination
    */
-  public async getAllClasses(gymSlug?: string): Promise<Class[]> {
+  public async getAllClasses(gymSlug: string): Promise<Class[]> {
     try {
-      const endpoint = gymSlug 
-        ? getGymApiEndpoints(gymSlug).CLASSES.LIST 
-        : API_ENDPOINTS.CLASSES.LIST;
+      const endpoint = getGymApiEndpoints(gymSlug).CLASSES.LIST;
       
       const response = await this.get<Class[]>(endpoint);
-      return response.data;
+      return response.data || [];
     } catch (error) {
       throw error;
     }
   }
 
   /**
-   * Get class by ID
+   * Get class details by ID
    */
-  public async getClassById(id: number): Promise<Class> {
+  public async getClassDetails(id: number, gymSlug: string): Promise<any> {
     try {
-      const response = await this.get<Class>(API_ENDPOINTS.CLASSES.DETAILS(id));
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get active classes only
-   */
-  public async getActiveClasses(): Promise<Class[]> {
-    try {
-      const response = await this.get<Class[]>(API_ENDPOINTS.CLASSES.LIST, {
-        params: { is_active: true }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get classes by instructor
-   */
-  public async getClassesByInstructor(instructor: string): Promise<Class[]> {
-    try {
-      const response = await this.get<Class[]>(API_ENDPOINTS.CLASSES.LIST, {
-        params: { instructor }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Search classes by name or description
-   */
-  public async searchClasses(query: string): Promise<Class[]> {
-    try {
-      const response = await this.get<Class[]>(API_ENDPOINTS.CLASSES.LIST, {
-        params: { search: query }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get upcoming classes
-   */
-  public async getUpcomingClasses(gymSlug?: string): Promise<Class[]> {
-    try {
-      const endpoint = gymSlug 
-        ? getGymApiEndpoints(gymSlug).CLASSES.LIST 
-        : API_ENDPOINTS.CLASSES.LIST;
+      // Set the gym slug for this request
+      this.setGymSlug(gymSlug);
       
-      const response = await this.get<Class[]>(endpoint, {
-        params: { upcoming: true }
-      });
-      return response.data;
+      const endpoint = getGymApiEndpoints(gymSlug).CLASSES.DETAILS(id);
+      
+      return await this.get<any>(endpoint);
+      
     } catch (error) {
+      console.error('ClassService getClassDetails error:', error);
       throw error;
     }
   }

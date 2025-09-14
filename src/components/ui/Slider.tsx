@@ -139,6 +139,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    minHeight: 200, // Ensure minimum height
+    flex: 1,
   },
   itemImage: {
     width: '100%',
@@ -146,6 +148,8 @@ const styles = StyleSheet.create({
   },
   itemContent: {
     padding: 12,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   itemTitle: {
     fontSize: 16,

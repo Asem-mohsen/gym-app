@@ -29,7 +29,7 @@ export class AuthService extends BaseService {
         ? API_ENDPOINTS.AUTH.LOGIN 
         : (gymSlug ? getGymApiEndpoints(gymSlug).AUTH.LOGIN : API_ENDPOINTS.AUTH.LOGIN);
       
-      const response = await this.post<AuthUser>(endpoint, credentials);
+      const response = await this.post<any>(endpoint, credentials);
       
       if (response.data && response.data.token) {
         await this.storeToken(response.data.token);
@@ -50,7 +50,7 @@ export class AuthService extends BaseService {
         ? API_ENDPOINTS.AUTH.SIGNUP 
         : (gymSlug ? getGymApiEndpoints(gymSlug).AUTH.SIGNUP : API_ENDPOINTS.AUTH.SIGNUP);
       
-      const response = await this.post<AuthUser>(endpoint, credentials);
+      const response = await this.post<any>(endpoint, credentials);
       
       if (response.data && response.data.token) {
         await this.storeToken(response.data.token);

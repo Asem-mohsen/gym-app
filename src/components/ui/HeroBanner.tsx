@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -16,6 +17,7 @@ interface HeroSlide {
   title: string;
   subtitle: string;
   actionText: string;
+  actionIcon?: string; // Icon name for the action button
   onPress: () => void;
 }
 
@@ -67,6 +69,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             style={styles.actionButton}
             onPress={() => handleSlidePress(slide)}
           >
+            {slide.actionIcon && (
+              <Icon name={slide.actionIcon} size={20} color="#FFFFFF" style={styles.actionIcon} />
+            )}
             <Text style={styles.actionButtonText}>{slide.actionText}</Text>
           </TouchableOpacity>
         </View>
@@ -106,7 +111,7 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     height: 200,
-    borderRadius: 12,
+    borderRadius: 0,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -151,10 +156,17 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   actionButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  actionIcon: {
+    marginRight: 8,
   },
   actionButtonText: {
     color: '#FFFFFF',

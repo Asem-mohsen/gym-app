@@ -6,6 +6,7 @@ export { MembershipService } from './MembershipService';
 export { ClassService } from './ClassService';
 export { ServiceService } from './ServiceService';
 export { HomeService } from './HomeService';
+export { ContactService } from './ContactService';
 
 // Import classes for instance creation
 import { GymService } from './GymService';
@@ -14,6 +15,7 @@ import { MembershipService } from './MembershipService';
 import { ClassService } from './ClassService';
 import { ServiceService } from './ServiceService';
 import { HomeService } from './HomeService';
+import { ContactService } from './ContactService';
 
 // Export service instances for singleton usage
 export const gymService = GymService.getInstance();
@@ -22,3 +24,4 @@ export const membershipService = MembershipService.getInstance();
 export const classService = ClassService.getInstance();
 export const serviceService = ServiceService.getInstance();
 export const homeService = HomeService.getInstance();
+export const contactService = ContactService.getInstance();

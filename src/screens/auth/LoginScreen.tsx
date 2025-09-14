@@ -64,9 +64,9 @@ export const LoginScreen: React.FC<Props> = ({ onClose }) => {
       await login(formData, selectedGym?.slug);
       // Close modal on successful login
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       // Error is handled by the auth context
-      console.error('Login error:', err);
+      console.error('Login error:', err?.message || err?.error || err || 'Unknown error');
     }
   };
 

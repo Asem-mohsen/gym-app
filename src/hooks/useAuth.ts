@@ -78,11 +78,11 @@ export const useAuth = (): UseAuthReturn => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const authUser = await authService.login(credentials, gymSlug);
+      const authResponse = await authService.login(credentials, gymSlug);
       
       setState(prev => ({
         ...prev,
-        user: authUser,
+        user: authResponse.user,
         isAuthenticated: true,
         isLoading: false,
       }));
@@ -90,7 +90,7 @@ export const useAuth = (): UseAuthReturn => {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error?.message || 'Login failed',
+        error: error?.message || error?.error || 'Login failed',
       }));
       throw error;
     }
@@ -100,11 +100,11 @@ export const useAuth = (): UseAuthReturn => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const authUser = await authService.signup(credentials, gymSlug);
+      const authResponse = await authService.signup(credentials, gymSlug);
       
       setState(prev => ({
         ...prev,
-        user: authUser,
+        user: authResponse.user,
         isAuthenticated: true,
         isLoading: false,
       }));
@@ -112,7 +112,7 @@ export const useAuth = (): UseAuthReturn => {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error?.message || 'Signup failed',
+        error: error?.message || error?.error || 'Signup failed',
       }));
       throw error;
     }

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface MotivationBannerProps {
   title: string;
@@ -28,75 +29,87 @@ export const MotivationBanner: React.FC<MotivationBannerProps> = ({
   backgroundImage,
 }) => {
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={backgroundImage || { uri: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=200&fit=crop' }}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        <View style={styles.overlay}>
-          <View style={styles.content}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={onButtonPress}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>{buttonText}</Text>
-            </TouchableOpacity>
-          </View>
+    <ImageBackground
+      source={backgroundImage || { uri: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=200&fit=crop' }}
+      style={styles.backgroundImage}
+      resizeMode="cover"
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.content}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{subtitle}</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={onButtonPress}
+            activeOpacity={0.8}
+          >
+            <Icon name="envelope" size={18} color="#FFFFFF" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>{buttonText}</Text>
+          </TouchableOpacity>
         </View>
-      </ImageBackground>
-    </View>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginVertical: 20,
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
   backgroundImage: {
     width: '100%',
-    height: 160,
+    height: 300,
+    marginVertical: 20,
+  },
+  imageStyle: {
+    // Fix sticky image issue by ensuring proper positioning
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   content: {
     alignItems: 'center',
-    paddingHorizontal: 20,
+    width: '100%',
+    maxWidth: '100%',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+    paddingHorizontal: 16,
   },
   subtitle: {
     fontSize: 16,
     color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
     opacity: 0.9,
     lineHeight: 22,
+    paddingHorizontal: 16,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
   buttonText: {
     color: '#FFFFFF',

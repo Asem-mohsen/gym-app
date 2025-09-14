@@ -1,6 +1,27 @@
+import { Platform } from 'react-native';
+
+// Platform-specific API configuration
+const getBaseUrl = () => {
+  if (Platform.OS === 'ios') {
+    // iOS simulator uses localhost
+    return 'http://localhost:8000/api/v1';
+  } else {
+    // Android emulator uses 10.0.2.2 to access host machine
+    return 'http://10.0.2.2:8000/api/v1';
+  }
+};
+
+const getMediaBaseUrl = () => {
+  if (Platform.OS === 'ios') {
+    return 'http://localhost:8000';
+  } else {
+    return 'http://10.0.2.2:8000';
+  }
+};
+
 export const API_CONFIG = {
-  BASE_URL: 'http://10.0.2.2:8000/api/v1',
-  MEDIA_BASE_URL: 'http://10.0.2.2:8000',
+  BASE_URL: getBaseUrl(),
+  MEDIA_BASE_URL: getMediaBaseUrl(),
   TIMEOUT: 10000,
   HEADERS: {
     'Content-Type': 'application/json',
@@ -17,7 +38,10 @@ export const getGymApiUrl = (gymSlug: string, endpoint: string): string => {
 export const fixImageUrl = (imageUrl: string): string => {
   if (!imageUrl) return '';
   
-  if (imageUrl.includes('127.0.0.1:8000') || imageUrl.includes('localhost:8000')) {
+  // Handle different localhost formats for both platforms
+  if (imageUrl.includes('127.0.0.1:8000') || 
+      imageUrl.includes('localhost:8000') || 
+      imageUrl.includes('10.0.2.2:8000')) {
     return imageUrl.replace(/https?:\/\/[^\/]+/, API_CONFIG.MEDIA_BASE_URL);
   }
   
@@ -41,13 +65,13 @@ export const API_ENDPOINTS = {
     LIST: '/memberships',
     DETAILS: (id: number) => `/memberships/${id}`,
   },
-  CLASSES: {
-    LIST: '/classes',
-    DETAILS: (id: number) => `/classes/${id}`,
-  },
   SERVICES: {
     LIST: '/services',
     DETAILS: (id: number) => `/services/${id}`,
+  },
+  CONTACT: {
+    INFO: '/contact',
+    SUBMIT: '/contact',
   },
 } as const;
 
@@ -61,15 +85,19 @@ export const getGymApiEndpoints = (gymSlug: string) => ({
     REFRESH: `${gymSlug}/auth/refresh`,
   },
   MEMBERSHIPS: {
-    LIST: `${gymSlug}/memberships`,
-    DETAILS: (id: number) => `${gymSlug}/memberships/${id}`,
+    LIST: `/memberships`,
+    DETAILS: (id: number) => `/memberships/${id}`,
   },
   CLASSES: {
-    LIST: `${gymSlug}/classes`,
-    DETAILS: (id: number) => `${gymSlug}/classes/${id}`,
+    LIST: `/classes`,
+    DETAILS: (id: number) => `/classes/${id}`,
   },
   SERVICES: {
-    LIST: `${gymSlug}/services`,
-    DETAILS: (id: number) => `${gymSlug}/services/${id}`,
+    LIST: `/services`,
+    DETAILS: (id: number) => `/services/${id}`,
+  },
+  CONTACT: {
+    INFO: `/contact`,
+    SUBMIT: `/contact`,
   },
 });

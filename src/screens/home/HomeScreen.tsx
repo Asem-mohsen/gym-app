@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useGymContext } from '../../contexts/GymContext';
+import { useNavigationContext } from '../../contexts/NavigationContext';
 import { homeService } from '../../services';
 import { Membership, Class, Service } from '../../types';
 import { Card, Loader, ErrorMessage, Button, Modal, HeroBanner, Slider, MotivationBanner } from '../../components/ui';
+import { ContactModal } from '../../components/ContactModal';
 import { LoginScreen } from '../auth/LoginScreen';
 import { SignupScreen } from '../auth/SignupScreen';
 import { fixImageUrl } from '../../constants/api';
@@ -26,11 +28,13 @@ import { heroImages, classImages, serviceImages } from '../../assets/images/plac
 export const HomeScreen: React.FC = () => {
   const { user, isAuthenticated } = useAuthContext();
   const { selectedGym } = useGymContext();
+  const { setActiveTab, navigate } = useNavigationContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [showContactModal, setShowContactModal] = useState(false);
   
   const [featuredMemberships, setFeaturedMemberships] = useState<Membership[]>([]);
   const [upcomingClasses, setUpcomingClasses] = useState<Class[]>([]);
@@ -40,27 +44,16 @@ export const HomeScreen: React.FC = () => {
     try {
       setError(null);
       
-      // Load data if gym is selected (regardless of authentication status)
       if (selectedGym) {
-        if (isAuthenticated) {
-          // Load home data from the gym-specific endpoint for authenticated users
-          const homeData = await homeService.getHomeData(selectedGym.slug);
 
-          // Take only the first few items for featured display
-          setFeaturedMemberships(homeData.memberships.slice(0, 3));
-          setUpcomingClasses(homeData.classes.slice(0, 3));
-          setPopularServices(homeData.trainers.slice(0, 3)); // Using trainers as services for now
-        } else {
-          // For unauthenticated users, load basic gym data
-          // You can add specific endpoints for public data here if needed
-          setFeaturedMemberships([]);
-          setUpcomingClasses([]);
-          setPopularServices([]);
-        }
+        const homeData = await homeService.getHomeData(selectedGym.slug);
+
+        setFeaturedMemberships(homeData.memberships.slice(0, 3));
+        setUpcomingClasses(homeData.classes.slice(0, 3));
+        setPopularServices(homeData.trainers.slice(0, 3));
       }
     } catch (err) {
       setError('Failed to load data. Please try again.');
-      console.error('Home screen data loading error:', err);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -74,56 +67,11 @@ export const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [isAuthenticated, selectedGym]);
+  }, [selectedGym]);
 
   if (isLoading) {
     return <Loader variant="overlay" message="Loading..." />;
   }
-
-  const renderAuthSection = () => (
-    <View style={styles.authSection}>
-      <View style={styles.gymHeader}>
-        {selectedGym?.logo && (
-          <Image 
-            source={{ uri: fixImageUrl(selectedGym.logo) }} 
-            style={styles.gymLogo}
-            resizeMode="cover"
-          />
-        )}
-        <View style={styles.gymInfo}>
-          <Text style={styles.gymName}>{selectedGym?.gym_name}</Text>
-          {selectedGym?.description && (
-            <Text style={styles.gymDescription}>{selectedGym.description}</Text>
-          )}
-        </View>
-      </View>
-      
-      <Text style={styles.authTitle}>Welcome to {selectedGym?.gym_name}</Text>
-      <Text style={styles.authSubtitle}>
-        Sign in to access your membership, book classes, and manage your account.
-      </Text>
-      
-      <View style={styles.authButtons}>
-        <Button
-          title="Sign In"
-          onPress={() => {
-            setAuthMode('login');
-            setShowAuthModal(true);
-          }}
-          style={styles.authButton}
-        />
-        <Button
-          title="Sign Up"
-          onPress={() => {
-            setAuthMode('signup');
-            setShowAuthModal(true);
-          }}
-          variant="outline"
-          style={styles.authButton}
-        />
-      </View>
-    </View>
-  );
 
   const renderMainContent = () => {
     const heroSlides = [
@@ -133,9 +81,9 @@ export const HomeScreen: React.FC = () => {
         title: 'Premium Memberships',
         subtitle: 'Choose the perfect plan for your fitness journey',
         actionText: 'View Memberships',
+        actionIcon: 'card-membership',
         onPress: () => {
-          // Navigate to memberships - you can implement navigation here
-          console.log('Navigate to memberships');
+          setActiveTab('Memberships');
         },
       },
       {
@@ -144,9 +92,9 @@ export const HomeScreen: React.FC = () => {
         title: 'Group Classes',
         subtitle: 'Join our amazing group fitness classes',
         actionText: 'View Classes',
+        actionIcon: 'fitness-center',
         onPress: () => {
-          // Navigate to classes - you can implement navigation here
-          console.log('Navigate to classes');
+          setActiveTab('Classes');
         },
       },
     ];
@@ -167,8 +115,7 @@ export const HomeScreen: React.FC = () => {
             subtitle: `${membership.general_description || 'No description available'}\n$${membership.price || '0'} • ${membership.period || 'N/A'}`,
             image: heroImages.memberships, // Using hero image as placeholder
             onPress: () => {
-              // Navigate to membership details - you can implement navigation here
-              console.log('Navigate to membership:', membership.id);
+              navigate('Memberships', { membershipId: membership.id });
             },
           }))}
           renderItem={(item) => (
@@ -191,8 +138,7 @@ export const HomeScreen: React.FC = () => {
             </View>
           )}
           onViewAllPress={() => {
-            // Navigate to all memberships - you can implement navigation here
-            console.log('Navigate to all memberships');
+            setActiveTab('Memberships');
           }}
         />
 
@@ -202,8 +148,7 @@ export const HomeScreen: React.FC = () => {
           subtitle="Join thousands of members who have achieved their fitness goals with us. Start your journey today!"
           buttonText="Contact Us"
           onButtonPress={() => {
-            // Navigate to contact page or open contact modal
-            console.log('Navigate to contact us');
+            setShowContactModal(true);
           }}
         />
 
@@ -213,20 +158,25 @@ export const HomeScreen: React.FC = () => {
           items={upcomingClasses.map((classItem, index) => ({
             id: classItem.id || index,
             title: classItem.name || 'Class',
-            subtitle: `Instructor: ${classItem.instructor || 'TBA'}\n${
-              classItem.start_time ? 
+            subtitle: `Trainers: ${classItem.trainers && classItem.trainers.length > 0 
+              ? classItem.trainers.map(trainer => getSafeText(trainer.name || trainer)).join(', ')
+              : 'TBA'
+            }\n${
+              classItem.schedules && classItem.schedules.length > 0 ? 
+                classItem.schedules.map(schedule => 
+                  `${getSafeText(schedule.day)} ${getSafeText(schedule.start_time)}-${getSafeText(schedule.end_time)}`
+                ).join(', ')
+              : classItem.start_time ? 
                 `${new Date(classItem.start_time).toLocaleDateString()} at ${new Date(classItem.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` :
                 'Time TBA'
             }`,
             image: classItem.image ? { uri: fixImageUrl(classItem.image) } : classImages.default,
             onPress: () => {
-              // Navigate to class details - you can implement navigation here
-              console.log('Navigate to class:', classItem.id);
+              navigate('Classes', { classId: classItem.id });
             },
           }))}
           onViewAllPress={() => {
-            // Navigate to all classes - you can implement navigation here
-            console.log('Navigate to all classes');
+            setActiveTab('Classes');
           }}
         />
 
@@ -236,16 +186,14 @@ export const HomeScreen: React.FC = () => {
           items={popularServices.map((service, index) => ({
             id: service.id || index,
             title: service.name || 'Service',
-            subtitle: `${service.description || 'No description available'}\n$${service.price || '0'} • ${service.duration_minutes || '0'} min`,
+            subtitle: `${service.description || 'No description available'}\n$${service.price || '0'} • ${service.duration || '0'} min`,
             image: serviceImages.default, // You can customize this based on service type
             onPress: () => {
-              // Navigate to service details - you can implement navigation here
-              console.log('Navigate to service:', service.id);
+              setActiveTab('Services');
             },
           }))}
           onViewAllPress={() => {
-            // Navigate to all services - you can implement navigation here
-            console.log('Navigate to all services');
+            setActiveTab('Services');
           }}
         />
 
@@ -253,6 +201,24 @@ export const HomeScreen: React.FC = () => {
     );
   };
 
+  // Helper function to safely render text that might be an object
+  const getSafeText = (value: any): string => {
+    if (typeof value === 'string') {
+      return value;
+    } else if (typeof value === 'object' && value !== null) {
+      // Handle translation objects like {en: "text", ar: "text"}
+      if (value.en) {
+        return value.en;
+      } else if (value.name) {
+        return value.name;
+      } else {
+        return JSON.stringify(value);
+      }
+    } else {
+      return String(value || '');
+    }
+  };
+  
   return (
     <>
       <ScrollView
@@ -277,6 +243,11 @@ export const HomeScreen: React.FC = () => {
           <SignupScreen onClose={() => setShowAuthModal(false)} />
         )}
       </Modal>
+
+      <ContactModal
+        visible={showContactModal}
+        onClose={() => setShowContactModal(false)}
+      />
     </>
   );
 };
@@ -438,6 +409,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    minHeight: 200, // Ensure minimum height
+    flex: 1,
   },
   
   membershipImage: {
@@ -447,6 +420,8 @@ const styles = StyleSheet.create({
   
   membershipContent: {
     padding: 12,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   
   membershipTitle: {

@@ -85,8 +85,8 @@ export const SignInScreen: React.FC = () => {
         clearError();
       }
       await login(formData, selectedGym?.slug);
-    } catch (err) {
-      console.error('Login error:', err);
+    } catch (err: any) {
+      console.error('Login error:', err?.message || err?.error || err || 'Unknown error');
     }
   };
 
@@ -103,8 +103,8 @@ export const SignInScreen: React.FC = () => {
         ...formData,
         phone: formData.phone || undefined,
       }, selectedGym?.slug);
-    } catch (err) {
-      console.error('Signup error:', err);
+    } catch (err: any) {
+      console.error('Signup error:', err?.message || err?.error || err || 'Unknown error');
     }
   };
 

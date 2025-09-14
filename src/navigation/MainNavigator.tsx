@@ -6,7 +6,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { MembershipListScreen } from '../screens/memberships/MembershipListScreen';
+import MembershipDetailsScreen from '../screens/memberships/MembershipDetailsScreen';
 import { ClassListScreen } from '../screens/classes/ClassListScreen';
+import ClassDetailsScreen from '../screens/classes/ClassDetailsScreen';
 import { ServiceListScreen } from '../screens/services/ServiceListScreen';
 import { GymSelectionScreen } from '../screens/gym/GymSelectionScreen';
 import { SignInScreen } from '../screens/auth/SignInScreen';
@@ -22,38 +24,61 @@ type MainTab = 'Home' | 'Memberships' | 'Classes' | 'Services' | 'Profile' | 'Si
  */
 export const MainNavigator: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
-  const { activeTab, setActiveTab } = useNavigationContext();
+  const { activeTab, setActiveTab, navigationParams, setNavigationParams, goBack } = useNavigationContext();
+  const [lastTabPress, setLastTabPress] = useState<{ tab: string; time: number } | null>(null);
+
+  const handleTabPress = (tab: string) => {
+    const now = Date.now();
+    const isDoubleClick = lastTabPress && 
+      lastTabPress.tab === tab && 
+      (now - lastTabPress.time) < 500; // 500ms double-click threshold
+
+    if (isDoubleClick && tab === 'Memberships' && navigationParams.membershipId) {
+      // Double-click on Memberships tab while in details page - go to list
+      setNavigationParams({});
+      setActiveTab(tab as MainTab);
+    } else {
+      // Normal tab press
+      setActiveTab(tab as MainTab);
+    }
+
+    setLastTabPress({ tab, time: now });
+  };
 
   const renderTabIcon = (tabName: MainTab, focused: boolean) => {
     const color = focused ? '#007AFF' : '#8E8E93';
+    const size = 22;
     
-    // Use text-based icons as fallback
-    const getIconText = (tab: MainTab) => {
+    // Use Ionicons for better UX
+    const getIconName = (tab: MainTab) => {
       switch (tab) {
         case 'Home':
-          return '🏠';
+          return focused ? 'home' : 'home-outline';
         case 'Memberships':
-          return '💳';
+          return focused ? 'card' : 'card-outline';
         case 'Classes':
-          return '🏃';
+          return focused ? 'fitness' : 'fitness-outline';
         case 'Services':
-          return '⚙️';
+          return focused ? 'settings' : 'settings-outline';
         case 'Profile':
-          return '👤';
+          return focused ? 'person' : 'person-outline';
         case 'SignIn':
-          return '🔐';
+          return focused ? 'log-in' : 'log-in-outline';
         case 'GymSelection':
-          return '🏢';
+          return focused ? 'business' : 'business-outline';
         default:
-          return '❓';
+          return 'help-outline';
       }
     };
 
     return (
-      <Text style={[styles.iconText, { color }]}>
-        {getIconText(tabName)}
-      </Text>
+      <Icon 
+        name={getIconName(tabName)} 
+        size={size} 
+        color={color} 
+      />
     );
+
   };
 
   const renderContent = () => {
@@ -78,8 +103,14 @@ export const MainNavigator: React.FC = () => {
       case 'Home':
         return <HomeScreen />;
       case 'Memberships':
+        if (navigationParams.membershipId) {
+          return <MembershipDetailsScreen />;
+        }
         return <MembershipListScreen navigation={mockNavigation as any} />;
       case 'Classes':
+        if (navigationParams.classId) {
+          return <ClassDetailsScreen />;
+        }
         return <ClassListScreen navigation={mockNavigation as any} />;
       case 'Services':
         return <ServiceListScreen navigation={mockNavigation as any} />;
@@ -108,7 +139,7 @@ export const MainNavigator: React.FC = () => {
           <TouchableOpacity
             key={tab}
             style={styles.tab}
-            onPress={() => setActiveTab(tab as MainTab)}
+            onPress={() => handleTabPress(tab)}
           >
             {renderTabIcon(tab as MainTab, activeTab === tab)}
             <Text style={[

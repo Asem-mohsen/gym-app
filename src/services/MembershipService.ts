@@ -1,6 +1,6 @@
 import { BaseService } from './BaseService';
 import { API_ENDPOINTS, getGymApiEndpoints } from '../constants/api';
-import { Membership, ApiResponse, PaginatedResponse } from '../types';
+import { Membership } from '../types';
 
 /**
  * Membership Service
@@ -21,26 +21,6 @@ export class MembershipService extends BaseService {
   }
 
   /**
-   * Get all memberships with pagination
-   */
-  public async getMemberships(page: number = 1, perPage: number = 10, gymSlug?: string): Promise<PaginatedResponse<Membership>> {
-    try {
-      const endpoint = gymSlug 
-        ? getGymApiEndpoints(gymSlug).MEMBERSHIPS.LIST 
-        : API_ENDPOINTS.MEMBERSHIPS.LIST;
-      
-      const response = await this.getPaginated<Membership>(
-        endpoint,
-        page,
-        perPage
-      );
-      return response as PaginatedResponse<Membership>;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
    * Get all memberships without pagination
    */
   public async getAllMemberships(gymSlug?: string): Promise<Membership[]> {
@@ -50,52 +30,27 @@ export class MembershipService extends BaseService {
         : API_ENDPOINTS.MEMBERSHIPS.LIST;
       
       const response = await this.get<Membership[]>(endpoint);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get membership by ID
-   */
-  public async getMembershipById(id: number): Promise<Membership> {
-    try {
-      const response = await this.get<Membership>(API_ENDPOINTS.MEMBERSHIPS.DETAILS(id));
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get active memberships only
-   */
-  public async getActiveMemberships(gymSlug?: string): Promise<Membership[]> {
-    try {
-      const endpoint = gymSlug 
-        ? getGymApiEndpoints(gymSlug).MEMBERSHIPS.LIST 
-        : API_ENDPOINTS.MEMBERSHIPS.LIST;
       
-      const response = await this.get<Membership[]>(endpoint, {
-        params: { is_active: true }
-      });
-      return response.data;
+      return response.data || [];
     } catch (error) {
+      console.error('MembershipService getAllMemberships error:', error);
       throw error;
     }
   }
 
   /**
-   * Search memberships by name or description
+   * Get membership details with trainers, user subscription, and branches
    */
-  public async searchMemberships(query: string): Promise<Membership[]> {
+  public async getMembershipDetails(id: number, gymSlug: string): Promise<any> {
     try {
-      const response = await this.get<Membership[]>(API_ENDPOINTS.MEMBERSHIPS.LIST, {
-        params: { search: query }
-      });
-      return response.data;
+      // Set the gym slug for this request
+      this.setGymSlug(gymSlug);
+      
+      const endpoint = getGymApiEndpoints(gymSlug).MEMBERSHIPS.DETAILS(id);
+      
+      return await this.get<any>(endpoint);
     } catch (error) {
+      console.error('MembershipService getMembershipDetails error:', error);
       throw error;
     }
   }
