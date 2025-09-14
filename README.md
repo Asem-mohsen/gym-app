@@ -1,79 +1,165 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# GymApp - React Native Mobile Application
 
-# Getting Started
+A comprehensive React Native mobile application for gym management, connected to a Laravel API backend.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Features
 
-## Step 1: Start the Metro Server
+- **Authentication**: Login and signup functionality
+- **Home Dashboard**: Overview of gym services and user information
+- **Memberships**: Browse and view membership plans
+- **Classes**: View available classes and book sessions
+- **Services**: Browse additional gym services
+- **Profile**: View and edit user profile information
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Architecture
 
-To start Metro, run the following command from the _root_ of your React Native project:
+The application follows SOLID principles and clean architecture patterns:
 
-```bash
-# using npm
-npm start
+### Folder Structure
 
-# OR using Yarn
-yarn start
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Basic UI components (Button, Input, Card, etc.)
+│   └── forms/          # Form-specific components
+├── screens/            # Screen components
+│   ├── auth/           # Authentication screens
+│   ├── home/           # Home screen
+│   ├── memberships/    # Membership-related screens
+│   ├── classes/        # Class-related screens
+│   ├── services/       # Service-related screens
+│   └── profile/        # Profile screen
+├── services/           # API service layer
+├── navigation/         # Navigation configuration
+├── contexts/           # React contexts (Auth, etc.)
+├── hooks/              # Custom hooks
+├── types/              # TypeScript type definitions
+├── constants/          # App constants
+└── utils/              # Utility functions
 ```
 
-## Step 2: Start your Application
+### Key Design Patterns
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+1. **Service Layer Pattern**: All API calls are handled through service classes
+2. **Repository Pattern**: Data access is abstracted through service classes
+3. **Context Pattern**: Authentication state is managed through React Context
+4. **Component Composition**: Reusable UI components following single responsibility
+5. **Navigation Pattern**: Stack and tab navigation for different app sections
 
-### For Android
+## API Integration
 
+The app connects to a Laravel API backend at `http://127.0.0.1:8000/api/v1` with the following endpoints:
+
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/signup` - User registration
+- `POST /auth/logout` - User logout
+- `GET /auth/profile` - Get user profile
+- `PUT /auth/profile` - Update user profile
+
+### Memberships
+- `GET /memberships` - List all memberships
+- `GET /memberships/{id}` - Get membership details
+
+### Classes
+- `GET /classes` - List all classes
+- `GET /classes/{id}` - Get class details
+
+### Services
+- `GET /services` - List all services
+- `GET /services/{id}` - Get service details
+
+## Installation & Setup
+
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **iOS Setup**
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+3. **Run the Application**
+   ```bash
+   # For iOS
+   npm run ios
+   
+   # For Android
+   npm run android
+   ```
+
+## Dependencies
+
+### Core Dependencies
+- `react-native`: 0.73.11
+- `react`: 18.2.0
+- `typescript`: 5.0.4
+
+### Navigation
+- `@react-navigation/native`
+- `@react-navigation/bottom-tabs`
+- `@react-navigation/stack`
+- `react-native-screens`
+- `react-native-safe-area-context`
+
+### HTTP & Storage
+- `axios`: HTTP client for API requests
+- `@react-native-async-storage/async-storage`: Local storage
+
+### UI Components
+- `react-native-vector-icons`: Icon library
+
+## Code Quality
+
+The codebase follows these principles:
+
+- **SOLID Principles**: Single responsibility, open/closed, etc.
+- **DRY (Don't Repeat Yourself)**: Reusable components and services
+- **TypeScript**: Full type safety throughout the application
+- **Error Handling**: Comprehensive error handling and user feedback
+- **Loading States**: Proper loading indicators for better UX
+- **Validation**: Form validation with user-friendly error messages
+
+## Development Guidelines
+
+1. **Components**: Create reusable components in `src/components/ui/`
+2. **Services**: Add new API services in `src/services/`
+3. **Screens**: Add new screens in appropriate folders under `src/screens/`
+4. **Types**: Define TypeScript interfaces in `src/types/`
+5. **Constants**: Add app constants in `src/constants/`
+
+## Testing
+
+Run tests with:
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+npm test
 ```
 
-### For iOS
+## Building for Production
 
+### iOS
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+cd ios
+xcodebuild -workspace GymApp.xcworkspace -scheme GymApp -configuration Release
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+### Android
+```bash
+cd android
+./gradlew assembleRelease
+```
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+## Contributing
 
-## Step 3: Modifying your App
+1. Follow the established folder structure
+2. Use TypeScript for all new code
+3. Follow SOLID principles
+4. Add proper error handling
+5. Include loading states
+6. Write meaningful commit messages
 
-Now that you have successfully run the app, let's modify it.
+## License
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project is licensed under the MIT License.
